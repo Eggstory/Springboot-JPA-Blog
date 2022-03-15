@@ -3,14 +3,20 @@ package com.cos.blog.test;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cos.blog.model.RoleType;
@@ -23,6 +29,45 @@ public class DummyControllerTest {
 	
 	@Autowired	// 의존성 주입
 	private UserRepository userRepository;
+	
+	// save함수는 id를 전달하지 않으면 insert를 해주고
+	// save함수는 id를 전달하면 해당 id에 대한 데이터가 있으면 update를 해주고
+	// save함수는 id를 전달하면 해당 id에 대한 데이터가 없으면 insert를 한다.
+	// email, password	실제로 다른거 개인정보 수정은 못하게 하잖슴
+	
+	@DeleteMapping("/dummy/user/{id}")
+	public String delete(@PathVariable int id) {
+		try {
+			userRepository.deleteById(id);
+		} catch (EmptyResultDataAccessException e) {	// IllegalArgumentException : 메소드가 잘못됬거나 부적합한 인수를 전달할때
+			return "삭제에 실패하였습니다. 해당 id는 DB에 없습니다.";
+		}
+		
+		
+		return "삭제되었습니다. id : "+id;
+	}
+	
+	
+	
+	@Transactional						//transactional 쓰면 save()없이도 저장이 된다. 이유는 아래 더티체킹 설명 확인
+	@PutMapping("/dummy/user/{id}")		//transactional는 함수 종료시 자동 commit이 됨s
+	public User updateUser(@PathVariable int id, @RequestBody User requestUser) {
+													//@RequestBody 덕분에 Json 데이터가 자바오브젝트로 잘 변환되는거
+		System.out.println("id : " +id);
+		System.out.println("password : " +requestUser.getPassword());
+		System.out.println("email : " +requestUser.getEmail());
+		
+		User user = userRepository.findById(id).orElseThrow(()->{		// 여기 없는 필드를 찾기위해 사용
+			return new IllegalArgumentException("수정에 실패하였습니다.");	// 그리고 이 user는 null이 없음
+		});																// 리턴되고 영속화가 됨
+		user.setPassword(requestUser.getPassword());
+		user.setEmail(requestUser.getEmail());
+
+	//	userRepository.save(user);	// update때는 save를 잘 안씀	// 여기 주석하면 save()를 못써서 insert 불가
+									// save()를 주석했는데 변경값이 저장이 된다?
+		return user;				// 이유는 더티체킹 때문
+									// 더티체킹이란 save()없이 set객체로 변경시켜서 @Transactional 어노테이션을 쓰면 저장이 됨
+	}
 	
 	// http://localhost:8888/dummy/user
 	@GetMapping("/dummy/users")
@@ -77,7 +122,7 @@ public class DummyControllerTest {
 			@Override
 			public IllegalArgumentException get() {
 				// TODO Auto-generated method stub
-				return new IllegalArgumentException("해당 유저는 없습니다. id : " +id);
+				return new IllegalArgumentException("해당 유저는 없습니다.");
 				// 실행해보면 "해당 유저는 없습니다 id : ~ " + 에러로그가 뜸
 				// 나중에 AOP를 사용하면 결과 화면을 가로채 다른 화면을 집어넣을수 있음
 			}
