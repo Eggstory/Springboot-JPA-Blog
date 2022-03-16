@@ -1,4 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<sec:authorize access="isAuthenticated()">
+	<sec:authentication property="principal" var="principal"/>
+</sec:authorize>
+<!-- 위에꺼 적용하면 principal sessionScope없어도 됨 -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +14,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -18,10 +26,25 @@
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="collapsibleNavbar">
-			<ul class="navbar-nav">
-				<li class="nav-item"><a class="nav-link" href="/user/loginForm">로그인</a></li>
-				<li class="nav-item"><a class="nav-link" href="/user/joinForm">회원가입</a></li>
-			</ul>
+
+			<!-- c:when은 sessionScope.principal이 비어있을때 즉, 로그인이 안되어있을때 -->
+			<!-- c:choose 안에는 주석 넣으면 안되나봄 -->
+			<!-- session 값은 principal에 들어가있음 -->
+			<c:choose>	
+				<c:when test="${empty principal}">
+					<ul class="navbar-nav">
+						<li class="nav-item"><a class="nav-link" href="/loginForm">로그인</a></li>
+						<li class="nav-item"><a class="nav-link" href="/joinForm">회원가입</a></li>
+					</ul>
+				</c:when>
+				<c:otherwise>
+					<ul class="navbar-nav">
+						<li class="nav-item"><a class="nav-link" href="/board/form">글쓰기</a></li>
+						<li class="nav-item"><a class="nav-link" href="/user/form">회원정보</a></li>
+						<li class="nav-item"><a class="nav-link" href="/logout">로그아웃</a></li>
+					</ul>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</nav>
 	<br />
