@@ -1,52 +1,50 @@
 package com.cos.blog.controller.api;
 
-//import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cos.blog.config.auth.PrincipalDetail;
 import com.cos.blog.dto.ResponseDto;
-import com.cos.blog.model.User;
-import com.cos.blog.service.UserService;
+import com.cos.blog.model.Board;
+import com.cos.blog.service.BoardService;
 
 @RestController
-public class UserApiController {
+public class BoardApiController {
 
 	@Autowired
-	private UserService userService;
+	private BoardService boardService;
 	
-	@Autowired
-	private AuthenticationManager authenticationManager;
-
-	@PostMapping("/auth/joinProc")									// 제네릭 공부해야하나...
-	public ResponseDto<Integer> save(@RequestBody User user) {	// username, password, email
-		System.out.println("UserApiController : save 호출됨");
-		// 실제로 DB에 insert를 하고 아래에서 return이 되면 되요.
-		userService.회원가입(user);
+// 아래에 구시대적 로그인방식에서 HttpSession session을 지우고 여기에 써서 DI해줘도됨 /아래꺼 안지우고 여기 DI된거 지워도됨
+//	@Autowired
+//	private HttpSession session;
+	
+	
+	@PostMapping("/api/board")									// 제네릭 공부해야하나...	// username, password, email
+	public ResponseDto<Integer> save(@RequestBody Board board, @AuthenticationPrincipal PrincipalDetail principal) {
+		boardService.글쓰기(board, principal.getUser());
 		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);	// 자바오브젝트를 JSON으로 변환해서 리턴
 	}
+
+	@DeleteMapping("/api/board/{id}")
+	public ResponseDto<Integer> deleteById(@PathVariable int id){
+		boardService.글삭제하기(id);
+		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);
+	}
 	
-	@PutMapping("/user")			// key = value (없을때), x-www-form-urlencoded (RequestBody있을때)
-	public ResponseDto<Integer> update(@RequestBody User user) {
-		userService.회원수정(user);
-		// 여기서는 트랜잭션이 종료되기 때문에 DB값은 변경이 됬음
-		// 하지만 세션값은 변경되지 않은 상태이기 때문에 우리가 직접 세션값을 변경해줄 것임
-		// 세션 등록
-		Authentication authentication = authenticationManager.authenticate
-				(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()) );
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+	@PutMapping("/api/board/{id}")
+	public ResponseDto<Integer> update(@PathVariable int id, @RequestBody Board board) {
+		boardService.글수정하기(id,board);
 		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);
 		
 	}
-
+	
 /*	
 	//이 방식은 전통방식(구시대적) - 요즘은 스프링 시큐리티를 이용해서 로그인함
 	@PostMapping("/api/user/login")

@@ -3,6 +3,9 @@ let index = {
 		$("#btn-save").on("click",()=>{		// function(){}, ()=>{} 라고 쓴이유는
 			this.save();					// 코드줄이려는게 아니고 this를 바인딩하기 위해서
 		});
+		$("#btn-delete").on("click",()=>{		// function(){}, ()=>{} 라고 쓴이유는
+			this.deleteById();					// 코드줄이려는게 아니고 this를 바인딩하기 위해서
+		});
 		$("#btn-update").on("click",()=>{		// function(){}, ()=>{} 라고 쓴이유는
 			this.update();					// 코드줄이려는게 아니고 this를 바인딩하기 위해서
 		});
@@ -22,9 +25,8 @@ let index = {
 	save: function() {
 		//alert('user의 save함수 호출됨');
 		let data = {
-				username: $("#username").val(),
-				password: $("#password").val(),
-				email: $("#email").val()
+				title: $("#title").val(),
+				content: $("#content").val()
 		};
 		
 		//console.log(data);
@@ -34,13 +36,13 @@ let index = {
 		// ajax가 통신을 성공하고 서버가 json을 리턴해주면 자동으로 자바 오브젝트로 변환해줌
 		$.ajax({
 			type:"POST",
-			url:"/auth/joinProc",
+			url:"/api/board",
 			data: JSON.stringify(data),	//http body 데이터
 			contentType:"application/json; charset=utf-8",	//body 데이터가 어떤 타입인지(MIME)
 			dataType: "json"	// 요청을 서버로해서 응답이 왔을 때 기본적으로 모든것이 문자열 (응답 데이터 타입 지정)
 								// (생긴게 json이라면 => javascript 오브젝트로 변경)
 		}).done(function(resp){
-			alert("회원가입이 완료되었습니다.");
+			alert("글쓰기가 완료되었습니다.");
 			//console.log(resp);
 			location.href="/";
 		}).fail(function(error){
@@ -49,25 +51,39 @@ let index = {
 		
 	}, 	
 	
+	deleteById: function() {
+		let id = $("#id").text();
+
+		$.ajax({
+			type:"DELETE",
+			url:"/api/board/"+id,
+			dataType: "json"
+		}).done(function(resp){
+			alert("삭제가 완료되었습니다.");
+			location.href="/";
+		}).fail(function(error){
+			alert(JSON.stringify(error));
+		});
+		
+	},
+	
 	update: function() {
-		//alert('user의 save함수 호출됨');
+		let id = $("#id").val();
+		
 		let data = {
-				id: $("#id").val(),
-				username: $("#username").val(),
-				password: $("#password").val(),
-				email: $("#email").val()
+				title: $("#title").val(),
+				content: $("#content").val()
 		};
 		
 		$.ajax({
 			type:"PUT",
-			url:"/user",
-			data: JSON.stringify(data),	//http body 데이터
-			contentType:"application/json; charset=utf-8",	//body 데이터가 어떤 타입인지(MIME)
-			dataType: "json"	// 요청을 서버로해서 응답이 왔을 때 기본적으로 모든것이 문자열 (응답 데이터 타입 지정)
-								// (생긴게 json이라면 => javascript 오브젝트로 변경)
+			url:"/api/board/"+id,
+			data: JSON.stringify(data),
+			contentType:"application/json; charset=utf-8",
+			dataType: "json"	
+
 		}).done(function(resp){
-			alert("회원수정이 완료되었습니다.");
-			//console.log(resp);
+			alert("글수정이 완료되었습니다.");
 			location.href="/";
 		}).fail(function(error){
 			alert(JSON.stringify(error));

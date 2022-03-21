@@ -77,14 +77,14 @@ public class DummyControllerTest {
 	
 	// 한페이지당 2건의 데이터를 리턴받아 볼 예정
 	@GetMapping("/dummy/user")
-	public List<User> pageList(@PageableDefault(size=2, sort = "id", direction = Sort.Direction.DESC)
+	public Page<User> pageList(@PageableDefault(size=2, sort = "id", direction = Sort.Direction.DESC)
 	Pageable pageable) {
 //		List<User> users = userRepository.findAll(pageable).getContent();		// 이게 더 쉬운거 같은데 왜 아래꺼 쓰지?
 		
 		Page<User> pagingUser = userRepository.findAll(pageable);
 //		if(pagingUser.isLast()) { }			// 첫번째 데이터인가 분기점을 만들수도 있다 (이렇게 if 사용함으로써)
 		List<User> users = pagingUser.getContent();
-		return users;
+		return pagingUser;
 		
 	}
 	
