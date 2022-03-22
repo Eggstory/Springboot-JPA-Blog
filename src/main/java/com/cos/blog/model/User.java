@@ -34,7 +34,7 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)	// 프로젝트에서 연결된 DB의 넘버링 전략을 따라간다.
 	private int id; // oracle에선 시퀀스 , mysql에서는 auto_increment
 	
-	@Column(nullable = false , length = 30, unique=true)
+	@Column(nullable = false , length = 100, unique=true)
 	private String username;	// 아이디
 	
 	@Column(nullable = false , length = 100) // 123456 => 해쉬(비밀번호 암호화)
@@ -49,6 +49,8 @@ public class User {
 	private RoleType role;	// Enum을 쓰는게 좋다. 이유 : data의 도메인을 만들수 있어서
 							// 도메인이란 범위를 정해줄 수 있다는 말 (아래 3개 중에 선택하는것처럼)
 							// ex) ADMIN , USER
+	
+	private String oauth;	// kakao로 들어온사람은 kakao로
 	
 						// import java.sql.Timestamp; 이걸로 해야 오류 안나더라
 	@CreationTimestamp	// 시간이 자동입력
