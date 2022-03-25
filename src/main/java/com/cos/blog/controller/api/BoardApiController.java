@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cos.blog.config.auth.PrincipalDetail;
+import com.cos.blog.dto.ReplySaveRequestDto;
 import com.cos.blog.dto.ResponseDto;
 import com.cos.blog.model.Board;
 import com.cos.blog.service.BoardService;
@@ -20,6 +21,7 @@ public class BoardApiController {
 
 	@Autowired
 	private BoardService boardService;
+
 	
 // 아래에 구시대적 로그인방식에서 HttpSession session을 지우고 여기에 써서 DI해줘도됨 /아래꺼 안지우고 여기 DI된거 지워도됨
 //	@Autowired
@@ -44,6 +46,22 @@ public class BoardApiController {
 		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);
 		
 	}
+	
+	// 데이터 받을 때 컨트로럴에서 dto를 만들어서 받는게 좋다.
+	// dto 사용하지 않은 이유는 - 
+	@PostMapping("/api/board/{boardId}/reply")		// (@PathVariable int boardId, @RequestBody Reply reply, @AuthenticationPrincipal PrincipalDetail principal)							
+	public ResponseDto<Integer> replySave(@RequestBody ReplySaveRequestDto replySaveRequestDto) {
+		boardService.댓글쓰기(replySaveRequestDto);
+		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);	// 자바오브젝트를 JSON으로 변환해서 리턴
+	}
+	
+	@DeleteMapping("/api/board/{boardId}/reply/{replyId}")
+	public ResponseDto<Integer> replyDelete(@PathVariable int replyId) {
+		boardService.댓글삭제(replyId);
+		return new ResponseDto<Integer>(HttpStatus.OK.value(),1);
+	}
+	
+	
 	
 /*	
 	//이 방식은 전통방식(구시대적) - 요즘은 스프링 시큐리티를 이용해서 로그인함
