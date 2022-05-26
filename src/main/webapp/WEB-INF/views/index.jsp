@@ -4,14 +4,33 @@
 <%@ include file="layout/header.jsp"%>
 
 <div class="container">
-	<c:forEach var="board" items="${boards.content}">
-		<div class="card m-2">
-			<div class="card-body">
-				<h4 class="card-title">${board.title }</h4>
-				<a href="/board/${board.id}" class="btn btn-primary">상세보기</a>
-			</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>No</th>
+						<th>제목</th>
+						<th>작성자</th>
+						<th>작성일</th>
+						<th>조회수</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="board" items="${boards.content}">
+						<tr onclick="location.href='/board/${board.id}'" style="cursor: pointer;">
+							<td>${board.id }</td>
+							<td>${board.title }</td>
+							<td>${board.user.username }</td>
+							<td>${board.creatDate }</td>
+							<td>${board.count }</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
 		</div>
-	</c:forEach>
+
+	</div>
 
 	<!-- justify-content-center/end/start   중앙/끝/시작부분  -->
 	<ul class="pagination justify-content-center">
@@ -38,4 +57,3 @@
 </div>
 
 <%@ include file="layout/footer.jsp"%>
-

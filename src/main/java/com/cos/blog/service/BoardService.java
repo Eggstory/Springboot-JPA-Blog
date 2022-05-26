@@ -93,6 +93,13 @@ public class BoardService {
 	public void 댓글삭제(int replyId) {
 		replyRepository.deleteById(replyId);
 	}
+	
+	// 조회수 증가
+	@Transactional
+	public int updateCount(int id) {
+		return boardRepository.updateCount(id);
+	}
+	
 
 /*
 	// 구시대적 로그인방식을 안쓰고 spring security로 할 예정이므로 주석처리

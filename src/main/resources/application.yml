@@ -46,7 +46,7 @@ spring:
 
   jackson:
     serialization:
-      fail-on-empty-beans: false
+      fail-on-empty-beans: true
       
 cos:
   key: cos1234

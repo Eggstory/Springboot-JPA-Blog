@@ -79,6 +79,6 @@ public class PrincipalDetail implements UserDetails {
 		
 		
 		return collectors;
-	}
+	} 
 	
 }

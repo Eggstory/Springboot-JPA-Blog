@@ -20,7 +20,7 @@ public class BoardController {
 	// @AuthenticationPrincipal PrincipalDetail principal
 	@GetMapping({ "", "/" })
 	public String index(Model model,
-			@PageableDefault(size = 3, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) { // 컨트롤러에서 세션을
+			@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) { // 컨트롤러에서 세션을
 																											// 어떻게 찾는지?
 		model.addAttribute("boards", boardService.글목록(pageable));
 		return "index"; // viewResolver 작동
@@ -28,6 +28,7 @@ public class BoardController {
 
 	@GetMapping("/board/{id}")
 	public String findById(@PathVariable int id, Model model) {
+		boardService.updateCount(id);
 		model.addAttribute("board", boardService.글상세보기(id));
 		
 		return "board/detail";
